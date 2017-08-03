@@ -1,20 +1,66 @@
+<p-blockUI [blocked]="blocked" [target]="tasksDt"></p-blockUI>
+<p-blockUI [blocked]="blocked" [target]="doneTasksDt"></p-blockUI>
+
 <!--The whole content below can be removed with the new code.-->
 <div style="text-align:center">
   <h1>
     Welcome to {{title}}!!
   </h1>
-  <img width="300" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOS4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMCAyNTAgMjUwIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAyNTAgMjUwOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8c3R5bGUgdHlwZT0idGV4dC9jc3MiPg0KCS5zdDB7ZmlsbDojREQwMDMxO30NCgkuc3Qxe2ZpbGw6I0MzMDAyRjt9DQoJLnN0MntmaWxsOiNGRkZGRkY7fQ0KPC9zdHlsZT4NCjxnPg0KCTxwb2x5Z29uIGNsYXNzPSJzdDAiIHBvaW50cz0iMTI1LDMwIDEyNSwzMCAxMjUsMzAgMzEuOSw2My4yIDQ2LjEsMTg2LjMgMTI1LDIzMCAxMjUsMjMwIDEyNSwyMzAgMjAzLjksMTg2LjMgMjE4LjEsNjMuMiAJIi8+DQoJPHBvbHlnb24gY2xhc3M9InN0MSIgcG9pbnRzPSIxMjUsMzAgMTI1LDUyLjIgMTI1LDUyLjEgMTI1LDE1My40IDEyNSwxNTMuNCAxMjUsMjMwIDEyNSwyMzAgMjAzLjksMTg2LjMgMjE4LjEsNjMuMiAxMjUsMzAgCSIvPg0KCTxwYXRoIGNsYXNzPSJzdDIiIGQ9Ik0xMjUsNTIuMUw2Ni44LDE4Mi42aDBoMjEuN2gwbDExLjctMjkuMmg0OS40bDExLjcsMjkuMmgwaDIxLjdoMEwxMjUsNTIuMUwxMjUsNTIuMUwxMjUsNTIuMUwxMjUsNTIuMQ0KCQlMMTI1LDUyLjF6IE0xNDIsMTM1LjRIMTA4bDE3LTQwLjlMMTQyLDEzNS40eiIvPg0KPC9nPg0KPC9zdmc+DQo=" />
 </div>
-<h2>Here are some links to help you start: </h2>
-<ul>
-  <li>
-    <h2><a target="_blank" href="https://angular.io/docs/ts/latest/tutorial/">Tour of Heroes</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" href="https://github.com/angular/angular-cli/wiki">CLI Documentation</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" href="http://angularjs.blogspot.ca/">Angular blog</a></h2>
-  </li>
-</ul>
+
+<div class="container">
+  <p-dialog header="New ToDo" [(visible)]="display">
+    <h4>Summary:</h4>
+    <input type="text" placeholder="Summary" [(ngModel)]="summary" pInputText/>
+    <h4>Detail:</h4>
+    <input type="text" placeholder="Detail" [(ngModel)]="detail" pInputText/>
+    <h4>Due Date:</h4>
+    <p-calendar [(ngModel)]="date" [inline]="true" showTime="showTime" hourFormat="24"></p-calendar>
+    <button type="submit" (click)="bindData() ; summary=''; detail='' ; date = null;" pButton icon="fa-check" label="Submit"></button>
+  </p-dialog>
+  <button type="text" (click)="showDialog()" pButton icon="fa-plus" label="New"></button>
+</div>
+
+<p-growl [value]="msgs"></p-growl>
+
+<div class="container">
+  <p-dataTable id="tasksDt" [value]="tasks" selectionMode="single" (onRowSelect)="view($event)" [(selection)]="selectedTask" [contextMenu]="cm">
+    <p-column field="summary" header="Summary"></p-column>
+    <p-column field="detail" header="Detail"></p-column>
+    <p-column field="date" header="Date"></p-column>
+    <p-column field="done" header="Done"></p-column>
+  </p-dataTable>
+
+  <p-contextMenu #cm [model]="items"></p-contextMenu>
+</div>
+
+<p-growl [value]="msgs"></p-growl>
+
+<div class="container">
+  <p-dialog header="Edit ToDo" [(visible)]="editing" (onShow)="block()" (onHide)="unBlock() ; taskToEdit = dummy;">
+    <h4>Summary:</h4>
+    <input type="text"   placeholder="Summary" [(ngModel)]="selectedTask.summary" pInputText/>
+    <h4>Detail:</h4>
+    <input pInputText placeholder="Detail" [(ngModel)]="selectedTask.detail"/>
+    <h4>Due Date:</h4>
+    <p-calendar [(ngModel)]="selectedTask.date" [inline]="true" showTime="showTime" hourFormat="24"></p-calendar>
+    <button type="submit" (click)="editApply() ; unBlock() ; summary=''; detail='' ; date = null;" pButton icon="fa-check" label="Save"></button>
+  </p-dialog>
+</div>
+
+<div class="container">
+  <h2>Done</h2>
+  <p-dataTable id="doneTasksDt" [value]="doneTasks" selectionMode="single" (onRowSelect)="view($event)" [(selection)]="selectedTask" [contextMenu]="cmd">
+    <p-column field="summary" header="Summary"></p-column>
+    <p-column field="detail" header="Detail"></p-column>
+    <p-column field="date" header="Date"></p-column>
+    <p-column field="done" header="Done"></p-column>
+    <p-column><button type="text" (click)="edit()" pButton icon="fa-plus" label="Edit" ui-button-secondary></button></p-column>
+  </p-dataTable>
+
+  <p-contextMenu #cmd [model]="doneItems"></p-contextMenu>
+</div>
+
+
+
 
